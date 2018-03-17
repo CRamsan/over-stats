@@ -34,11 +34,13 @@ Download and parse the profile's data. You do not need to call this method becau
 
         player_data.load_data()
 
-Print the entire profile's data in JSON format.
+Print the entire profile's data in JSON format. You will notice that the output is organized in a similar fashion as in the source (https://playoverwatch.com/).
 
 .. code:: python
 
         import json
         print (json.dumps(player_data.raw_data, indent=4))
 
-You can find a more methods to access the data in the demo.py file.
+This library does not hardcode the list of heroes, statistics or achievements. Instead you will need to retrieve those available values for the specific type of data you are retrieving. Even though this approach makes this library a bit more complicated to use, it also allows that new values such as new heroes will be handled transparently. 
+
+You can find more methods to access player data in the demo.py file.

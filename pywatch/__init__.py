@@ -213,12 +213,23 @@ class PlayerProfile:
             seld._model = {}
         self.load_data_if_needed()
 
+    '''
+    Get a list of comparison types available for this game mode
+    '''
     def comparison_types(self, mode):
         return list(self.raw_data[mode][COMPARISON].keys())
 
+    '''
+    Get a list of available heroes for this combination of comparison type and game mode
+    '''
     def comparison_heroes(self, mode, comparison_type):
         return list(self.raw_data[mode][COMPARISON][comparison_type].keys())
-    
+   
+    '''
+    Get comparison data
+    Retrieve the comparison data avilable for the provided game mode.
+    You can specify comparison type, and comparison hero to narrow down the return values.
+    '''
     def comparisons(self, mode, comparison_type = None, comparison_hero = None):
         if comparison_type == None:
             return self.raw_data[mode][COMPARISON]
@@ -227,15 +238,29 @@ class PlayerProfile:
         else:
             return self.raw_data[mode][COMPARISON][comparison_type][comparison_hero]
 
+    '''
+    Get a list of available heroes to get stats from for the provided game mode.
+    '''
     def stat_heroes(self, mode):
         return list(self.raw_data[mode][STATS].keys())
  
+    '''
+    Get a list of available stat categories for the requested hero
+    '''
     def stat_categories(self, mode, hero):
         return list(self.raw_data[mode][STATS][hero].keys())
     
+    '''
+    Get a list of available stat names for the requested game mode, hero name and stat category
+    '''
     def stat_names(self, mode, hero, category):
         return list(self.raw_data[mode][STATS][hero][category].keys())
- 
+
+    '''
+    Get stats data
+    Retrieve the statistics data available for the provided game mode.
+    You can provide a hero, category and stat name to narrow down the return value.
+    '''
     def stats(self, mode, hero = None, category = None, stat_name = None):
         if hero == None:
             return self.raw_data[mode][STATS]
@@ -245,17 +270,21 @@ class PlayerProfile:
             return self.raw_data[mode][STATS][hero][category]
         else:
             return self.raw_data[mode][STATS][hero][category][stat_name]
-    
+    '''
+    Get a list of available achievement types.
+    '''
     def achievement_types(self):
         return list(self.raw_data[ACHIEVEMENTS].keys())
 
-    def achievement_names(self, achievement_type):
-        return list(self.raw_data[ACHIEVEMENTS][achievement_type].keys())
-
-    def achievements(self, achievement_type = None, achievement_name = None, list_name = None):
+    '''
+    Get achievement data
+    Retrieve the available achievement data for this player. You can specify an achievement type or a list name to
+    narrow down the returned value. The list_name parameter can be None, pywatch.ACH_EARNED or pywatch.ACH_MISSING. 
+    '''
+    def achievements(self, achievement_type = None, list_name = None):
         if achievement_type == None:
             return self.raw_data[ACHIEVEMENTS]
-        elif achievement_name == None:
+        elif list_name == None:
             return self.raw_data[ACHIEVEMENTS][achievement_type]
         else:
             return self.raw_data[ACHIEVEMENTS][achievement_type][list_name]

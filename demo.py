@@ -45,13 +45,12 @@ for mode in pywatch.MODES:
 # Achievements do not depend on game mode and instead they use categories like 'General', 'Offence', 'Defense', etc
 for achievement_type in player_data.achievement_types():
     print (f"Achievement Type: {achievement_type}")
-    for achievement_name in player_data.achievement_names(achievement_type):
-        # Each achievement category contains two lists, one with acquired achievements and one for missing achievements.
-        print (f" - {pywatch.ACH_EARNED}")
-        for achievement in player_data.achievements(achievement_type, achievement_name, pywatch.ACH_EARNED):
-            # Print each earned achievements
-            print (f"    - {achievement}")
-        print (f" - {pywatch.ACH_MISSING}")
-        for achievement in player_data.achievements(achievement_type, achievement_name, pywatch.ACH_MISSING):
-            # Print each achievement that this player does not yet have
-            print (f"    - {achievement}")
+    # Each achievement category contains two lists, one with acquired achievements and one for missing achievements.
+    print (f" - {pywatch.ACH_EARNED}")
+    for achievement in player_data.achievements(achievement_type, achievement_name, pywatch.ACH_EARNED):
+        # Print each earned achievements
+        print (f"    - {achievement}")
+    print (f" - {pywatch.ACH_MISSING}")
+    for achievement in player_data.achievements(achievement_type, achievement_name, pywatch.ACH_MISSING):
+        # Print each achievement that this player does not yet have
+        print (f"    - {achievement}")
