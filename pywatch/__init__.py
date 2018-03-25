@@ -23,14 +23,14 @@ class PlayerProfile:
     '''
     Constructor
     '''
-    def __init__(self, battletag=None, platform='pc'):
-        if platform == 'pc':
+    def __init__(self, battletag=None, platform=PLAT_PC):
+        if platform == PLAT_PC:
             try:
                 self._battletag = urllib.parse.quote(battletag.replace('#', '-'))
             except AttributeError:
-                raise InvalidBattletag(f'battletag="{battletag}" is invalid')
+                raise pywatch.errors.InvalidBattletag(f'battletag="{battletag}" is invalid')
         elif platform not in PLATFORMS:
-                raise InvalidArgument(f'platform="{platform}" is invalid')
+                raise pywatch.errors.InvalidArgument(f'platform="{platform}" is invalid')
         else:
             self._battletag = urllib.parse.quote(battletag)
         self._platform = platform
@@ -46,8 +46,11 @@ class PlayerProfile:
         Used to retrieve the html element that contains all the data for competitive or quickplay.
         '''
         html = self._r.html.find(f'div[id="{mode}"]')
+        if len(html) == 0:
+            raise pywatch.errors.PlayerNotFound(f'Mode "{mode}" was not found. There is no data for this player')
         if len(html) != 1:
-            raise UnexpectedBehaviour('Finding the element for this game mode returned 0 or more than 1 element')
+            raise pywatch.errors.UnexpectedBehaviour('Finding the element for this game mode returned more than 1 element')
+        
         return html[0]
 
     def load_data_if_needed(self):
@@ -105,7 +108,7 @@ class PlayerProfile:
         if len(comparison_list) == 0:
             return []
         if len(comparison_list) != 1:
-            raise UnexpectedBehaviour('Found multiple comparison stats for this value.')
+            raise pywatch.errors.UnexpectedBehaviour('Found multiple comparison stats for this value.')
         stat = comparison_list[0]
         # stat_data will be in the form of ['dva' , '3' , 'reaper' , '6' , ....] 
         # We want to convert this into a dictionary
@@ -114,7 +117,7 @@ class PlayerProfile:
         it = iter(stat_data)
         for hero_name in it:
             stat_value = next(it)
-            stat_dict[hero_name] = stat_value
+            stat_dict[hero_name] = PlayerProfile.handle_stat_value(stat_value)
         return stat_dict
 
     '''
@@ -128,7 +131,7 @@ class PlayerProfile:
         if len(hero_category_list ) == 0:
             return []
         if len(hero_category_list ) != 1:
-            raise UnexpectedBehaviour('Found multiple heros for this value.')
+            raise pywatch.errors.UnexpectedBehaviour('Found multiple heros for this value.')
         hero_stats = hero_category_list[0]
         cards = hero_stats.find('.card-stat-block')
         # Each card represents the tables for 'Combat', 'Best', 'Average' etc
@@ -143,7 +146,7 @@ class PlayerProfile:
             it = iter(card_content)
             for stat_name in it:
                 stat_value = next(it)
-                stat_dict[stat_name] = stat_value
+                stat_dict[stat_name] = PlayerProfile.handle_stat_value(stat_value)
             card_dict[card_title] = stat_dict
         return card_dict
 
@@ -158,7 +161,7 @@ class PlayerProfile:
         if len(achievement_type_list) == 0:
             return []
         if len(achievement_type_list) != 1:
-            raise UnexpectedBehaviour('Found multiple achievement types for this value.')
+            raise pywatch.errors.UnexpectedBehaviour('Found multiple achievement types for this value.')
         achievement_container = achievement_type_list[0]
         achievement_list = achievement_container.find('.achievement-card')
         stat_dict = {}
@@ -175,6 +178,26 @@ class PlayerProfile:
         return stat_dict
 
     '''
+    The values retrieved from the html is a string that represents different types of value types.
+    This method will handle converting those strings into their appropriate value
+    '''
+    @staticmethod
+    def handle_stat_value(stat_value):
+        if '--' == stat_value or ':' in stat_value:
+            return stat_value
+        elif '%' in stat_value:
+            return float(stat_value.replace("%", ""))/(100.0)
+        elif ' ' in stat_value:
+            return stat_value.split(" ")
+        else:
+            stat_value = stat_value.replace(',', '')
+            if '.' in stat_value:
+                return float(stat_value)
+            else:
+                return int(stat_value)
+
+
+    '''
     Search for a <select> that matches the selectId. If no pageSection is provided we are going to search the whole page.
     If we find more than one matching <select> an exception will be thrown. 
     This method will then search for each <option> and it will return a dictionary that uses their text as the key.
@@ -183,7 +206,7 @@ class PlayerProfile:
     def getDictFromDropdown(selectId, pageSection):
         dropdownList = pageSection.find(f'select[data-group-id="{selectId}"]')
         if len(dropdownList) != 1:
-            raise UnexpectedBehaviour('Found multiple dropdowns found.')
+            raise pywatch.erros.UnexpectedBehaviour('Found multiple dropdowns found.')
         optionList = dropdownList[0].find('option')
         optionDict = {}
         for option in optionList:
@@ -197,11 +220,11 @@ class PlayerProfile:
     '''
 
     @property
-    '''
-    Return the content of _model. If _model is still empty then a load_data_if_needed() will ensure to make a request 
-    to populate it.
-    '''
     def raw_data(self):
+        '''
+        Return the content of _model. If _model is still empty then a load_data_if_needed() will ensure to make a request 
+        to populate it.
+        '''
         self.load_data_if_needed()
         return self._model
 
@@ -231,12 +254,19 @@ class PlayerProfile:
     You can specify comparison type, and comparison hero to narrow down the return values.
     '''
     def comparisons(self, mode, comparison_type = None, comparison_hero = None):
-        if comparison_type == None:
-            return self.raw_data[mode][COMPARISON]
-        elif comparison_hero == None:
-            return self.raw_data[mode][COMPARISON][comparison_type]
-        else:
-            return self.raw_data[mode][COMPARISON][comparison_type][comparison_hero]
+        if mode not in MODES:
+            raise pywatch.errors.InvalidArgument(f'mode="{mode}" is invalid')
+        try:
+            if comparison_type == None and comparison_hero == None:
+                return self.raw_data[mode][COMPARISON]
+            elif comparison_type != None and comparison_hero == None:
+                return self.raw_data[mode][COMPARISON][comparison_type]
+            elif comparison_type != None and comparison_hero != None:
+                return self.raw_data[mode][COMPARISON][comparison_type][comparison_hero]
+            else:
+                raise pywatch.errors.InvalidArgument(f'Combination of comparison_type="{comparison_type}", comparison_hero="{comparison_hero}" is not valid')
+        except KeyError:
+            raise pywatch.errors.DataNotFound("Data not available")
 
     '''
     Get a list of available heroes to get stats from for the provided game mode.
@@ -262,14 +292,22 @@ class PlayerProfile:
     You can provide a hero, category and stat name to narrow down the return value.
     '''
     def stats(self, mode, hero = None, category = None, stat_name = None):
-        if hero == None:
-            return self.raw_data[mode][STATS]
-        elif category == None:
-            return self.raw_data[mode][STATS][hero]
-        elif stat_name == None:
-            return self.raw_data[mode][STATS][hero][category]
-        else:
-            return self.raw_data[mode][STATS][hero][category][stat_name]
+        if mode not in MODES:
+            raise pywatch.errors.InvalidArgument(f'mode="{mode}" is invalid')
+        try:
+            if hero == None and category == None and stat_name == None:
+                return self.raw_data[mode][STATS]
+            elif hero != None and category == None and stat_name == None:
+                return self.raw_data[mode][STATS][hero]
+            elif hero != None and category != None and stat_name == None:
+                return self.raw_data[mode][STATS][hero][category]
+            elif hero != None and category != None and stat_name != None:
+                return self.raw_data[mode][STATS][hero][category][stat_name]
+            else:
+                raise pywatch.errors.InvalidArgument(f'Combination of hero="{hero}", category="{category}" and stat_name="{stat_name}" is not valid')
+        except KeyError:
+            raise pywatch.errors.DataNotFound("Data not available")
+
     '''
     Get a list of available achievement types.
     '''
@@ -282,9 +320,14 @@ class PlayerProfile:
     narrow down the returned value. The list_name parameter can be None, pywatch.ACH_EARNED or pywatch.ACH_MISSING. 
     '''
     def achievements(self, achievement_type = None, list_name = None):
-        if achievement_type == None:
-            return self.raw_data[ACHIEVEMENTS]
-        elif list_name == None:
-            return self.raw_data[ACHIEVEMENTS][achievement_type]
-        else:
-            return self.raw_data[ACHIEVEMENTS][achievement_type][list_name]
+        try:
+            if achievement_type == None:
+                return self.raw_data[ACHIEVEMENTS]
+            elif list_name == None:
+                return self.raw_data[ACHIEVEMENTS][achievement_type]
+            else:
+                return self.raw_data[ACHIEVEMENTS][achievement_type][list_name]
+        except KeyError:
+            raise pywatch.errors.DataNotFound("Data not available")
+
+

@@ -3,3 +3,9 @@ class InvalidArgument(Exception):
 
 class UnexpectedBehaviour(Exception):
     pass
+
+class PlayerNotFound(Exception):
+    pass
+
+class DataNotFound(Exception):
+    pass
