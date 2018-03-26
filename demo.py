@@ -1,12 +1,12 @@
 import json
-import pywatch
+import over_stats
 
 # Initialize a player profile by providing the player tag and the platform.
 # the platform is optional and by default it is 'pc'. Other valid values are
 # 'xbl' and 'psn'
-# player_data = pywatch.PlayerProfile('Stylosa#21555')
+# player_data = over_stats.PlayerProfile('Stylosa#21555')
 # or
-player_data = pywatch.PlayerProfile('acesarramsan', pywatch.PLAT_PSN)
+player_data = over_stats.PlayerProfile('acesarramsan', over_stats.PLAT_PSN)
 
 # Download and parse the profile's data
 player_data.load_data()
@@ -15,7 +15,7 @@ player_data.load_data()
 # print (json.dumps(player_data.raw_data, indent=4))
 
 # You can also use the helper methods to access the data you want
-for mode in pywatch.MODES:
+for mode in over_stats.MODES:
     # mode will be 'quickplay' or 'competitive'
     print (f"Game Mode: {mode}")
     print ("Comparison Types Available: " + str(player_data.comparison_types(mode)))
@@ -46,11 +46,11 @@ print ("Achievemet Types Available: " + str(player_data.achievement_types()))
 for achievement_type in player_data.achievement_types():
     print (f"Achievement Type: {achievement_type}")
     # Each achievement category contains two lists, one with acquired achievements and one for missing achievements.
-    print (f" - {pywatch.ACH_EARNED}")
-    for achievement in player_data.achievements(achievement_type, pywatch.ACH_EARNED):
+    print (f" - {over_stats.ACH_EARNED}")
+    for achievement in player_data.achievements(achievement_type, over_stats.ACH_EARNED):
         # Print each earned achievements
         print (f"    - {achievement}")
-    print (f" - {pywatch.ACH_MISSING}")
-    for achievement in player_data.achievements(achievement_type, pywatch.ACH_MISSING):
+    print (f" - {over_stats.ACH_MISSING}")
+    for achievement in player_data.achievements(achievement_type, over_stats.ACH_MISSING):
         # Print each achievement that this player does not yet have
         print (f"    - {achievement}")

@@ -1,7 +1,7 @@
 import urllib
 import requests_html
 
-import over-stats.errors
+import over_stats.errors
 
 PLAT_PC = "pc"
 PLAT_XBL = "xbl"
@@ -28,9 +28,9 @@ class PlayerProfile:
             try:
                 self._battletag = urllib.parse.quote(battletag.replace('#', '-'))
             except AttributeError:
-                raise over-stats.errors.InvalidBattletag(f'battletag="{battletag}" is invalid')
+                raise over_stats.errors.InvalidBattletag(f'battletag="{battletag}" is invalid')
         elif platform not in PLATFORMS:
-                raise over-stats.errors.InvalidArgument(f'platform="{platform}" is invalid')
+                raise over_stats.errors.InvalidArgument(f'platform="{platform}" is invalid')
         else:
             self._battletag = urllib.parse.quote(battletag)
         self._platform = platform
@@ -47,9 +47,9 @@ class PlayerProfile:
         '''
         html = self._r.html.find(f'div[id="{mode}"]')
         if len(html) == 0:
-            raise over-stats.errors.PlayerNotFound(f'Mode "{mode}" was not found. There is no data for this player')
+            raise over_stats.errors.PlayerNotFound(f'Mode "{mode}" was not found. There is no data for this player')
         if len(html) != 1:
-            raise over-stats.errors.UnexpectedBehaviour('Finding the element for this game mode returned more than 1 element')
+            raise over_stats.errors.UnexpectedBehaviour('Finding the element for this game mode returned more than 1 element')
         
         return html[0]
 
@@ -108,7 +108,7 @@ class PlayerProfile:
         if len(comparison_list) == 0:
             return []
         if len(comparison_list) != 1:
-            raise over-stats.errors.UnexpectedBehaviour('Found multiple comparison stats for this value.')
+            raise over_stats.errors.UnexpectedBehaviour('Found multiple comparison stats for this value.')
         stat = comparison_list[0]
         # stat_data will be in the form of ['dva' , '3' , 'reaper' , '6' , ....] 
         # We want to convert this into a dictionary
@@ -131,7 +131,7 @@ class PlayerProfile:
         if len(hero_category_list ) == 0:
             return []
         if len(hero_category_list ) != 1:
-            raise over-stats.errors.UnexpectedBehaviour('Found multiple heros for this value.')
+            raise over_stats.errors.UnexpectedBehaviour('Found multiple heros for this value.')
         hero_stats = hero_category_list[0]
         cards = hero_stats.find('.card-stat-block')
         # Each card represents the tables for 'Combat', 'Best', 'Average' etc
@@ -161,7 +161,7 @@ class PlayerProfile:
         if len(achievement_type_list) == 0:
             return []
         if len(achievement_type_list) != 1:
-            raise over-stats.errors.UnexpectedBehaviour('Found multiple achievement types for this value.')
+            raise over_stats.errors.UnexpectedBehaviour('Found multiple achievement types for this value.')
         achievement_container = achievement_type_list[0]
         achievement_list = achievement_container.find('.achievement-card')
         stat_dict = {}
@@ -206,7 +206,7 @@ class PlayerProfile:
     def getDictFromDropdown(selectId, pageSection):
         dropdownList = pageSection.find(f'select[data-group-id="{selectId}"]')
         if len(dropdownList) != 1:
-            raise over-stats.erros.UnexpectedBehaviour('Found multiple dropdowns found.')
+            raise over_stats.erros.UnexpectedBehaviour('Found multiple dropdowns found.')
         optionList = dropdownList[0].find('option')
         optionDict = {}
         for option in optionList:
@@ -255,7 +255,7 @@ class PlayerProfile:
     '''
     def comparisons(self, mode, comparison_type = None, comparison_hero = None):
         if mode not in MODES:
-            raise over-stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
+            raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
             if comparison_type == None and comparison_hero == None:
                 return self.raw_data[mode][COMPARISON]
@@ -264,9 +264,9 @@ class PlayerProfile:
             elif comparison_type != None and comparison_hero != None:
                 return self.raw_data[mode][COMPARISON][comparison_type][comparison_hero]
             else:
-                raise over-stats.errors.InvalidArgument(f'Combination of comparison_type="{comparison_type}", comparison_hero="{comparison_hero}" is not valid')
+                raise over_stats.errors.InvalidArgument(f'Combination of comparison_type="{comparison_type}", comparison_hero="{comparison_hero}" is not valid')
         except KeyError:
-            raise over-stats.errors.DataNotFound("Data not available")
+            raise over_stats.errors.DataNotFound("Data not available")
 
     '''
     Get a list of available heroes to get stats from for the provided game mode.
@@ -293,7 +293,7 @@ class PlayerProfile:
     '''
     def stats(self, mode, hero = None, category = None, stat_name = None):
         if mode not in MODES:
-            raise over-stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
+            raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
             if hero == None and category == None and stat_name == None:
                 return self.raw_data[mode][STATS]
@@ -304,9 +304,9 @@ class PlayerProfile:
             elif hero != None and category != None and stat_name != None:
                 return self.raw_data[mode][STATS][hero][category][stat_name]
             else:
-                raise over-stats.errors.InvalidArgument(f'Combination of hero="{hero}", category="{category}" and stat_name="{stat_name}" is not valid')
+                raise over_stats.errors.InvalidArgument(f'Combination of hero="{hero}", category="{category}" and stat_name="{stat_name}" is not valid')
         except KeyError:
-            raise over-stats.errors.DataNotFound("Data not available")
+            raise over_stats.errors.DataNotFound("Data not available")
 
     '''
     Get a list of available achievement types.
@@ -317,7 +317,7 @@ class PlayerProfile:
     '''
     Get achievement data
     Retrieve the available achievement data for this player. You can specify an achievement type or a list name to
-    narrow down the returned value. The list_name parameter can be None, over-stats.ACH_EARNED or over-stats.ACH_MISSING. 
+    narrow down the returned value. The list_name parameter can be None, over_stats.ACH_EARNED or over_stats.ACH_MISSING. 
     '''
     def achievements(self, achievement_type = None, list_name = None):
         try:
@@ -328,6 +328,6 @@ class PlayerProfile:
             else:
                 return self.raw_data[ACHIEVEMENTS][achievement_type][list_name]
         except KeyError:
-            raise over-stats.errors.DataNotFound("Data not available")
+            raise over_stats.errors.DataNotFound("Data not available")
 
 
