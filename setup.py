@@ -1,12 +1,13 @@
 from setuptools import setup
 
-setup(name='pywatch',
+setup(name='over-stats',
       version='0.1',
-      description='Python API to retrieve Overwatch statistics',
-      url='https://github.com/CRamsan/pywatch',
+      description='Python API to retrieve Overwatch Statistics',
+      url='https://github.com/CRamsan/over-stats',
       author='Cramsan',
       author_email='contact@cramsan.com',
       license='GNU GPL3',
-      packages=['pywatch'],
+      python_requires='>=3.6',      
+      packages=['over-stats'],
       install_requires=['requests-html'],
       zip_safe=False)

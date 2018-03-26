@@ -7,7 +7,7 @@ Still in early development but accepting suggestions and PRs.
 Installation
 ------------
 
-    pip install pywatch
+    pip install over-stats
 
 Requirements
 ------------
@@ -21,12 +21,12 @@ Initialize a player profile by providing the player tag and the platform. The pl
 
 .. code:: python
 
-        player_data = pywatch.PlayerProfile('Stylosa#21555')
+        player_data = over-stats.PlayerProfile('Stylosa#21555')
 or
 
 .. code:: python
 
-        player_data = pywatch.PlayerProfile('acesarramsan', pywatch.PLAT_PSN)
+        player_data = over-stats.PlayerProfile('acesarramsan', over-stats.PLAT_PSN)
 
 Download and parse the profile's data. You do not need to call this method because the first method that needs to download the profile data will do so. 
 
@@ -47,7 +47,7 @@ The list of game modes is available in:
 
 .. code:: python
 
-        pywatch.MODES
+        over-stats.MODES
 
 The fist section on a player's profile is the comparison section. Using one of the available modes you can retrieve the list of comparison types:
 
@@ -105,8 +105,8 @@ With a achievement type and a list name, you can get a list of achievements.
 
 .. code:: python
 
-        player_data.achievements(achievement_type, pywatch.ACH_EARNED)
-        player_data.achievements(achievement_type, pywatch.ACH_MISSING)
+        player_data.achievements(achievement_type, over-stats.ACH_EARNED)
+        player_data.achievements(achievement_type, over-stats.ACH_MISSING)
 
 The achievement_type and list_name are optional arguments. You can also skip both or provide only an achievement_type.
 
