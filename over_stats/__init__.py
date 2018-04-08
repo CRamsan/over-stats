@@ -1,3 +1,4 @@
+from decimal import *
 import urllib
 import requests_html
 
@@ -23,7 +24,7 @@ class PlayerProfile:
     '''
     Constructor
     '''
-    def __init__(self, battletag=None, platform=PLAT_PC):
+    def __init__(self, battletag=None, platform=PLAT_PC, use_decimal=False):
         if platform == PLAT_PC:
             try:
                 self._battletag = urllib.parse.quote(battletag.replace('#', '-'))
@@ -35,6 +36,7 @@ class PlayerProfile:
             self._battletag = urllib.parse.quote(battletag)
         self._platform = platform
         self._model = None
+        self._use_decimal = use_decimal
         self.url = 'https://playoverwatch.com/en-us/career/' + platform + '/' + self._battletag
 
     '''
@@ -74,7 +76,7 @@ class PlayerProfile:
                 comparison_dict = {}
                 comparisons = self.getDictFromDropdown(COMPARISON, html_mode)
                 for comp_name, comp_value in comparisons.items():
-                    comparison_stats = self.generate_comparison_stats(html_mode, comp_value)
+                    comparison_stats = self.generate_comparison_stats(html_mode, comp_value, self._use_decimal)
                     comparison_dict[comp_name] = comparison_stats
                 mode_dict[COMPARISON] = comparison_dict
                 
@@ -84,7 +86,7 @@ class PlayerProfile:
                 heroes = self.getDictFromDropdown(STATS, html_mode)
                 # Now generate a dictionary using the hero name as the dictionary key
                 for heroe_name, heroe_value in heroes.items():
-                    hero_stats = self.generate_hero_stats(html_mode, heroe_value)
+                    hero_stats = self.generate_hero_stats(html_mode, heroe_value, self._use_decimal)
                     hero_stat_dict[heroe_name] = hero_stats
                 mode_dict[STATS] = hero_stat_dict
                 
@@ -103,7 +105,7 @@ class PlayerProfile:
     The result will be a dictionary that uses a hero as it's key and the stat value as the value
     '''
     @staticmethod
-    def generate_comparison_stats(html, comparison_value):
+    def generate_comparison_stats(html, comparison_value, use_decimal=False):
         comparison_list = html.find(f'div[data-category-id="{comparison_value}"]')
         if len(comparison_list) == 0:
             return []
@@ -117,7 +119,7 @@ class PlayerProfile:
         it = iter(stat_data)
         for hero_name in it:
             stat_value = next(it)
-            stat_dict[hero_name] = PlayerProfile.handle_stat_value(stat_value)
+            stat_dict[hero_name] = PlayerProfile.handle_stat_value(stat_value, use_decimal)
         return stat_dict
 
     '''
@@ -126,7 +128,7 @@ class PlayerProfile:
     and values.
     '''
     @staticmethod
-    def generate_hero_stats(html, hero_value):
+    def generate_hero_stats(html, hero_value, use_decimal=False):
         hero_category_list = html.find(f'div[data-category-id="{hero_value}"]')
         if len(hero_category_list ) == 0:
             return []
@@ -146,7 +148,7 @@ class PlayerProfile:
             it = iter(card_content)
             for stat_name in it:
                 stat_value = next(it)
-                stat_dict[stat_name] = PlayerProfile.handle_stat_value(stat_value)
+                stat_dict[stat_name] = PlayerProfile.handle_stat_value(stat_value, use_decimal)
             card_dict[card_title] = stat_dict
         return card_dict
 
@@ -182,11 +184,14 @@ class PlayerProfile:
     This method will handle converting those strings into their appropriate value
     '''
     @staticmethod
-    def handle_stat_value(stat_value):
+    def handle_stat_value(stat_value, use_decimal=False):
         if '--' == stat_value or ':' in stat_value:
             return stat_value
         elif '%' in stat_value:
-            return float(stat_value.replace("%", ""))/(100.0)
+            if use_decimal:
+                return Decimal(str(float(stat_value.replace("%", ""))/(100.0)))
+            else:
+                return float(stat_value.replace("%", ""))/(100.0)
         elif ' ' in stat_value:
             return stat_value.split(" ")
         else:

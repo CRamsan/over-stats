@@ -8,6 +8,11 @@ import over_stats
 # or
 player_data = over_stats.PlayerProfile('acesarramsan', over_stats.PLAT_PSN)
 
+# Ther is a bug in the boto3 library that causes it not to be able to handle
+# floats. To get around this issue there is flag that you can use to wrap floats
+# into a Decimal.
+# player_data = over_stats.PlayerProfile('acesarramsan', over_stats.PLAT_PSN, True)
+
 # Download and parse the profile's data
 player_data.load_data()
 
