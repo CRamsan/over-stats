@@ -1,4 +1,4 @@
-over_stats
+Over Stats
 =======================
 
 Python API to retrieve Overwatch statistics
@@ -22,6 +22,7 @@ Initialize a player profile by providing the player tag and the platform. The pl
 .. code:: python
 
         player_data = over_stats.PlayerProfile('Stylosa#21555')
+
 or
 
 .. code:: python
@@ -111,3 +112,12 @@ With a achievement type and a list name, you can get a list of achievements.
 The achievement_type and list_name are optional arguments. You can also skip both or provide only an achievement_type.
 
 You can find examples of how to use these methods in the demo.py file.
+
+Boto3 support
+--------------
+
+The AWS Python library aka Boto3, has a limitation when dealing with DynamoDB items. You cannot insert an object containing a float to DynamoDB. This is a know issue which as existed for a while so in order to get around it there is flag that can be set when creating the PlayerProfile object. If you set this flag, then all floats will be wrapped in a Decimal, which will allow you to insert them to DynamoDB but they will not be able to be dumped to json.
+
+.. code:: python
+
+        player_data = over_stats.PlayerProfile('acesarramsan', over_stats.PLAT_PSN, True)
