@@ -4,7 +4,7 @@ with open('README.rst') as f:
     readme = f.read()
 
 setup(name='over_stats',
-      version='0.3.1',
+      version='0.3.2',
       description='Python API to retrieve Overwatch Statistics',
       long_description=readme,
       long_description_content_type='text/x-rst',
