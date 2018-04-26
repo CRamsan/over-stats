@@ -4,9 +4,9 @@ import over_stats
 # Initialize a player profile by providing the player tag and the platform.
 # the platform is optional and by default it is 'pc'. Other valid values are
 # 'xbl' and 'psn'
-# player_data = over_stats.PlayerProfile('Stylosa#21555')
+player_data = over_stats.PlayerProfile('ZanyDruid#13868')
 # or
-player_data = over_stats.PlayerProfile('acesarramsan', over_stats.PLAT_PSN)
+# player_data = over_stats.PlayerProfile('acesarramsan', over_stats.PLAT_PSN)
 
 # Ther is a bug in the boto3 library that causes it not to be able to handle
 # floats. To get around this issue there is flag that you can use to wrap floats

@@ -210,8 +210,10 @@ class PlayerProfile:
     @staticmethod
     def getDictFromDropdown(selectId, pageSection):
         dropdownList = pageSection.find(f'select[data-group-id="{selectId}"]')
-        if len(dropdownList) != 1:
-            raise over_stats.erros.UnexpectedBehaviour('Found multiple dropdowns found.')
+        if len(dropdownList) == 0:
+            return {}
+        if len(dropdownList) > 1:
+            raise over_stats.errors.UnexpectedBehaviour('Found multiple dropdowns found.')
         optionList = dropdownList[0].find('option')
         optionDict = {}
         for option in optionList:
