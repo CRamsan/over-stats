@@ -19,6 +19,7 @@ ACH_MISSING = 'missing'
 
 session = requests_html.HTMLSession()
 
+
 class PlayerProfile:
 
     '''
@@ -130,9 +131,9 @@ class PlayerProfile:
     @staticmethod
     def generate_hero_stats(html, hero_value, use_decimal=False):
         hero_category_list = html.find(f'div[data-category-id="{hero_value}"]')
-        if len(hero_category_list ) == 0:
+        if len(hero_category_list) == 0:
             return []
-        if len(hero_category_list ) != 1:
+        if len(hero_category_list) != 1:
             raise over_stats.errors.UnexpectedBehaviour('Found multiple heros for this value.')
         hero_stats = hero_category_list[0]
         cards = hero_stats.find('.card-stat-block')
@@ -201,7 +202,6 @@ class PlayerProfile:
             else:
                 return int(stat_value)
 
-
     '''
     Search for a <select> that matches the selectId. If no pageSection is provided we are going to search the whole page.
     If we find more than one matching <select> an exception will be thrown. 
@@ -238,7 +238,7 @@ class PlayerProfile:
     '''
     If _model is not populated or if force is tue, we will try to populate _model. Otherwise this method will be a noop.
     '''
-    def load_data(self, force = False):
+    def load_data(self, force=False):
         if force:
             seld._model = {}
         self.load_data_if_needed()
@@ -260,7 +260,7 @@ class PlayerProfile:
     Retrieve the comparison data avilable for the provided game mode.
     You can specify comparison type, and comparison hero to narrow down the return values.
     '''
-    def comparisons(self, mode, comparison_type = None, comparison_hero = None):
+    def comparisons(self, mode, comparison_type=None, comparison_hero=None):
         if mode not in MODES:
             raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
@@ -298,7 +298,7 @@ class PlayerProfile:
     Retrieve the statistics data available for the provided game mode.
     You can provide a hero, category and stat name to narrow down the return value.
     '''
-    def stats(self, mode, hero = None, category = None, stat_name = None):
+    def stats(self, mode, hero=None, category=None, stat_name=None):
         if mode not in MODES:
             raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
@@ -326,7 +326,7 @@ class PlayerProfile:
     Retrieve the available achievement data for this player. You can specify an achievement type or a list name to
     narrow down the returned value. The list_name parameter can be None, over_stats.ACH_EARNED or over_stats.ACH_MISSING. 
     '''
-    def achievements(self, achievement_type = None, list_name = None):
+    def achievements(self, achievement_type=None, list_name=None):
         try:
             if achievement_type is None:
                 return self.raw_data[ACHIEVEMENTS]
@@ -336,5 +336,3 @@ class PlayerProfile:
                 return self.raw_data[ACHIEVEMENTS][achievement_type][list_name]
         except KeyError:
             raise over_stats.errors.DataNotFound("Data not available")
-
-
