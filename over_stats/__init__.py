@@ -21,11 +21,9 @@ session = requests_html.HTMLSession()
 
 
 class PlayerProfile:
-
-    """
-    Constructor
-    """
     def __init__(self, battletag=None, platform=PLAT_PC, use_decimal=False):
+        """Create a new player profile."""
+
         if platform == PLAT_PC:
             try:
                 self._battletag = urllib.parse.quote(battletag.replace('#', '-'))
@@ -40,10 +38,7 @@ class PlayerProfile:
         self._use_decimal = use_decimal
         self.url = 'https://playoverwatch.com/en-us/career/' + platform + '/' + self._battletag
 
-    """
-    Internal methods
-    """
-
+    # Internal methods
     def get_html_for_mode(self, mode):
         """
         Used to retrieve the html element that contains all the data for competitive or quickplay.
@@ -101,12 +96,12 @@ class PlayerProfile:
                 achievements_dict[achievement_type] = achievement_dict
             self._model[ACHIEVEMENTS] = achievements_dict
 
-    """
-    Search the html element for divs containing the comparison stats.
-    The result will be a dictionary that uses a hero as it's key and the stat value as the value
-    """
     @staticmethod
     def generate_comparison_stats(html, comparison_value, use_decimal=False):
+        """
+        Search the html element for divs containing the comparison stats.
+        The result will be a dictionary that uses a hero as it's key and the stat value as the value
+        """
         comparison_list = html.find(f'div[data-category-id="{comparison_value}"]')
         if len(comparison_list) == 0:
             return []
@@ -123,13 +118,13 @@ class PlayerProfile:
             stat_dict[hero_name] = PlayerProfile.handle_stat_value(stat_value, use_decimal)
         return stat_dict
 
-    """
-    Search the html element for all divs containing the hero stat card. Each card will contain a list of
-    stats. The result will be a dictionary of stat categories names that link to a dictionary of stat names
-    and values.
-    """
     @staticmethod
     def generate_hero_stats(html, hero_value, use_decimal=False):
+        """
+        Search the html element for all divs containing the hero stat card. Each card will contain a list of
+        stats. The result will be a dictionary of stat categories names that link to a dictionary of stat names
+        and values.
+        """
         hero_category_list = html.find(f'div[data-category-id="{hero_value}"]')
         if len(hero_category_list) == 0:
             return []
@@ -153,13 +148,13 @@ class PlayerProfile:
             card_dict[card_title] = stat_dict
         return card_dict
 
-    """
-    Search the html element for a div that matches the achievement_type_value. This div will contain a list of achievements.
-    The return value will be a dictionary containing two lists, one for acquired and one for missing achievements. Each list
-    will contain the names of the respective achievements.
-    """
     @staticmethod
     def generate_achievement_list(html, achievement_type_value):
+        """
+        Search the html element for a div that matches the achievement_type_value. This div will contain a list of achievements.
+        The return value will be a dictionary containing two lists, one for acquired and one for missing achievements. Each list
+        will contain the names of the respective achievements.
+        """
         achievement_type_list = html.find(f'div[data-category-id="{achievement_type_value}"]')
         if len(achievement_type_list) == 0:
             return []
@@ -180,12 +175,12 @@ class PlayerProfile:
         stat_dict[ACH_MISSING] = missing_achievement
         return stat_dict
 
-    """
-    The values retrieved from the html is a string that represents different types of value types.
-    This method will handle converting those strings into their appropriate value
-    """
     @staticmethod
     def handle_stat_value(stat_value, use_decimal=False):
+        """
+        The values retrieved from the html is a string that represents different types of value types.
+        This method will handle converting those strings into their appropriate value
+        """
         if '--' == stat_value or ':' in stat_value:
             return stat_value
         elif '%' in stat_value:
@@ -202,13 +197,13 @@ class PlayerProfile:
             else:
                 return int(stat_value)
 
-    """
-    Search for a <select> that matches the selectId. If no pageSection is provided we are going to search the whole page.
-    If we find more than one matching <select> an exception will be thrown. 
-    This method will then search for each <option> and it will return a dictionary that uses their text as the key.
-    """
     @staticmethod
     def getDictFromDropdown(selectId, pageSection):
+        """
+        Search for a <select> that matches the selectId. If no pageSection is provided we are going to search the whole page.
+        If we find more than one matching <select> an exception will be thrown.
+        This method will then search for each <option> and it will return a dictionary that uses their text as the key.
+        """
         dropdownList = pageSection.find(f'select[data-group-id="{selectId}"]')
         if len(dropdownList) == 0:
             return {}
@@ -222,9 +217,7 @@ class PlayerProfile:
             optionDict[text] = value
         return optionDict
 
-    """
-    Public APIs
-    """
+    # Public APIs
 
     @property
     def raw_data(self):
@@ -235,32 +228,32 @@ class PlayerProfile:
         self.load_data_if_needed()
         return self._model
 
-    """
-    If _model is not populated or if force is tue, we will try to populate _model. Otherwise this method will be a noop.
-    """
     def load_data(self, force=False):
+        """
+        If _model is not populated or if force is tue, we will try to populate _model. Otherwise this method will be a noop.
+        """
         if force:
             seld._model = {}
         self.load_data_if_needed()
 
-    """
-    Get a list of comparison types available for this game mode
-    """
     def comparison_types(self, mode):
+        """
+        Get a list of comparison types available for this game mode
+        """
         return list(self.raw_data[mode][COMPARISON].keys())
 
-    """
-    Get a list of available heroes for this combination of comparison type and game mode
-    """
     def comparison_heroes(self, mode, comparison_type):
+        """
+        Get a list of available heroes for this combination of comparison type and game mode
+        """
         return list(self.raw_data[mode][COMPARISON][comparison_type].keys())
 
-    """
-    Get comparison data
-    Retrieve the comparison data avilable for the provided game mode.
-    You can specify comparison type, and comparison hero to narrow down the return values.
-    """
     def comparisons(self, mode, comparison_type=None, comparison_hero=None):
+        """
+        Get comparison data
+        Retrieve the comparison data avilable for the provided game mode.
+        You can specify comparison type, and comparison hero to narrow down the return values.
+        """
         if mode not in MODES:
             raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
@@ -275,30 +268,30 @@ class PlayerProfile:
         except KeyError:
             raise over_stats.errors.DataNotFound("Data not available")
 
-    """
-    Get a list of available heroes to get stats from for the provided game mode.
-    """
     def stat_heroes(self, mode):
+        """
+        Get a list of available heroes to get stats from for the provided game mode.
+        """
         return list(self.raw_data[mode][STATS].keys())
 
-    """
-    Get a list of available stat categories for the requested hero
-    """
     def stat_categories(self, mode, hero):
+        """
+        Get a list of available stat categories for the requested hero
+        """
         return list(self.raw_data[mode][STATS][hero].keys())
 
-    """
-    Get a list of available stat names for the requested game mode, hero name and stat category
-    """
     def stat_names(self, mode, hero, category):
+        """
+        Get a list of available stat names for the requested game mode, hero name and stat category
+        """
         return list(self.raw_data[mode][STATS][hero][category].keys())
 
-    """
-    Get stats data
-    Retrieve the statistics data available for the provided game mode.
-    You can provide a hero, category and stat name to narrow down the return value.
-    """
     def stats(self, mode, hero=None, category=None, stat_name=None):
+        """
+        Get stats data
+        Retrieve the statistics data available for the provided game mode.
+        You can provide a hero, category and stat name to narrow down the return value.
+        """
         if mode not in MODES:
             raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
@@ -315,18 +308,18 @@ class PlayerProfile:
         except KeyError:
             raise over_stats.errors.DataNotFound("Data not available")
 
-    """
-    Get a list of available achievement types.
-    """
     def achievement_types(self):
+        """
+        Get a list of available achievement types.
+        """
         return list(self.raw_data[ACHIEVEMENTS].keys())
 
-    """
-    Get achievement data
-    Retrieve the available achievement data for this player. You can specify an achievement type or a list name to
-    narrow down the returned value. The list_name parameter can be None, over_stats.ACH_EARNED or over_stats.ACH_MISSING. 
-    """
     def achievements(self, achievement_type=None, list_name=None):
+        """
+        Get achievement data
+        Retrieve the available achievement data for this player. You can specify an achievement type or a list name to
+        narrow down the returned value. The list_name parameter can be None, over_stats.ACH_EARNED or over_stats.ACH_MISSING.
+        """
         try:
             if achievement_type is None:
                 return self.raw_data[ACHIEVEMENTS]
