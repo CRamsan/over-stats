@@ -1,5 +1,5 @@
 from decimal import *
-import urllib
+import urllib.parse
 import requests_html
 
 import over_stats.errors
