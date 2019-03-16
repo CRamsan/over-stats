@@ -9,3 +9,6 @@ class PlayerNotFound(Exception):
 
 class DataNotFound(Exception):
     pass
+
+class InvalidBattletag(Exception):
+    pass
