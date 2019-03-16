@@ -70,7 +70,7 @@ class PlayerProfile:
                 # now retrieve the dictionary for all the different comparisons available, they will be something
                 # like 'Games Won', 'Time Played', 'Weapon Accuracy', etc
                 comparison_dict = {}
-                comparisons = self.getDictFromDropdown(COMPARISON, html_mode)
+                comparisons = self.get_dict_from_dropdown(COMPARISON, html_mode)
                 for comp_name, comp_value in comparisons.items():
                     comparison_stats = self.generate_comparison_stats(html_mode, comp_value, self._use_decimal)
                     comparison_dict[comp_name] = comparison_stats
@@ -79,7 +79,7 @@ class PlayerProfile:
                 # Now we are going to parse the career stat section
                 hero_stat_dict = {}
                 # Generate the dictionary for the hero stats
-                heroes = self.getDictFromDropdown(STATS, html_mode)
+                heroes = self.get_dict_from_dropdown(STATS, html_mode)
                 # Now generate a dictionary using the hero name as the dictionary key
                 for heroe_name, heroe_value in heroes.items():
                     hero_stats = self.generate_hero_stats(html_mode, heroe_value, self._use_decimal)
@@ -89,7 +89,7 @@ class PlayerProfile:
                 self._model[mode] = mode_dict
             achievements_dict = {}
             # Now extract the achievements
-            achievements = self.getDictFromDropdown(ACHIEVEMENTS, self._r.html)
+            achievements = self.get_dict_from_dropdown(ACHIEVEMENTS, self._r.html)
             # The achievement_type will be something like 'Offense', 'Defense', 'Tank', etc
             for achievement_type, achievement_type_value in achievements.items():
                 achievement_dict = self.generate_achievement_list(self._r.html, achievement_type_value)
@@ -198,7 +198,7 @@ class PlayerProfile:
                 return int(stat_value)
 
     @staticmethod
-    def getDictFromDropdown(select_id, page_section):
+    def get_dict_from_dropdown(select_id, page_section):
         """
         Search for a <select> that matches the select_id. If no page_section is provided we are going to search the whole page.
         If we find more than one matching <select> an exception will be thrown.
