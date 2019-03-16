@@ -42,7 +42,7 @@ class PlayerProfile:
     '''
     Internal methods
     '''
-        
+
     def get_html_for_mode(self, mode):
         '''
         Used to retrieve the html element that contains all the data for competitive or quickplay.
@@ -52,7 +52,7 @@ class PlayerProfile:
             raise over_stats.errors.PlayerNotFound(f'Mode "{mode}" was not found. There is no data for this player')
         if len(html) != 1:
             raise over_stats.errors.UnexpectedBehaviour('Finding the element for this game mode returned more than 1 element')
-        
+
         return html[0]
 
     def load_data_if_needed(self):
@@ -62,7 +62,7 @@ class PlayerProfile:
         the _model variable.
 
         '''
-        if self._model == None:
+        if self._model is None:
             self._model = {}
             self._r = session.get(self.url)
             # We are assuming that OW will not have any other game modes other than competitive and quickplay. 
@@ -70,7 +70,7 @@ class PlayerProfile:
                 # now get the html content that belongs to the current game mode
                 html_mode = self.get_html_for_mode(mode)
                 mode_dict = {}
-                
+
                 # now retrieve the dictionary for all the different comparisons available, they will be something
                 # like 'Games Won', 'Time Played', 'Weapon Accuracy', etc
                 comparison_dict = {}
@@ -79,7 +79,7 @@ class PlayerProfile:
                     comparison_stats = self.generate_comparison_stats(html_mode, comp_value, self._use_decimal)
                     comparison_dict[comp_name] = comparison_stats
                 mode_dict[COMPARISON] = comparison_dict
-                
+
                 # Now we are going to parse the career stat section
                 hero_stat_dict = {}
                 # Generate the dictionary for the hero stats
@@ -89,7 +89,7 @@ class PlayerProfile:
                     hero_stats = self.generate_hero_stats(html_mode, heroe_value, self._use_decimal)
                     hero_stat_dict[heroe_name] = hero_stats
                 mode_dict[STATS] = hero_stat_dict
-                
+
                 self._model[mode] = mode_dict
             achievements_dict = {}
             # Now extract the achievements
@@ -99,7 +99,7 @@ class PlayerProfile:
                 achievement_dict = self.generate_achievement_list(self._r.html, achievement_type_value)
                 achievements_dict[achievement_type] = achievement_dict
             self._model[ACHIEVEMENTS] = achievements_dict
-    
+
     '''
     Search the html element for divs containing the comparison stats.
     The result will be a dictionary that uses a hero as it's key and the stat value as the value
@@ -254,7 +254,7 @@ class PlayerProfile:
     '''
     def comparison_heroes(self, mode, comparison_type):
         return list(self.raw_data[mode][COMPARISON][comparison_type].keys())
-   
+
     '''
     Get comparison data
     Retrieve the comparison data avilable for the provided game mode.
@@ -264,11 +264,11 @@ class PlayerProfile:
         if mode not in MODES:
             raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
-            if comparison_type == None and comparison_hero == None:
+            if comparison_type is None and comparison_hero is None:
                 return self.raw_data[mode][COMPARISON]
-            elif comparison_type != None and comparison_hero == None:
+            elif comparison_type is not None and comparison_hero is None:
                 return self.raw_data[mode][COMPARISON][comparison_type]
-            elif comparison_type != None and comparison_hero != None:
+            elif comparison_type is not None and comparison_hero is not None:
                 return self.raw_data[mode][COMPARISON][comparison_type][comparison_hero]
             else:
                 raise over_stats.errors.InvalidArgument(f'Combination of comparison_type="{comparison_type}", comparison_hero="{comparison_hero}" is not valid')
@@ -280,13 +280,13 @@ class PlayerProfile:
     '''
     def stat_heroes(self, mode):
         return list(self.raw_data[mode][STATS].keys())
- 
+
     '''
     Get a list of available stat categories for the requested hero
     '''
     def stat_categories(self, mode, hero):
         return list(self.raw_data[mode][STATS][hero].keys())
-    
+
     '''
     Get a list of available stat names for the requested game mode, hero name and stat category
     '''
@@ -302,13 +302,13 @@ class PlayerProfile:
         if mode not in MODES:
             raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
-            if hero == None and category == None and stat_name == None:
+            if hero is None and category is None and stat_name is None:
                 return self.raw_data[mode][STATS]
-            elif hero != None and category == None and stat_name == None:
+            elif hero is not None and category is None and stat_name is None:
                 return self.raw_data[mode][STATS][hero]
-            elif hero != None and category != None and stat_name == None:
+            elif hero is not None and category is not None and stat_name is None:
                 return self.raw_data[mode][STATS][hero][category]
-            elif hero != None and category != None and stat_name != None:
+            elif hero is not None and category is not None and stat_name is not None:
                 return self.raw_data[mode][STATS][hero][category][stat_name]
             else:
                 raise over_stats.errors.InvalidArgument(f'Combination of hero="{hero}", category="{category}" and stat_name="{stat_name}" is not valid')
@@ -328,9 +328,9 @@ class PlayerProfile:
     '''
     def achievements(self, achievement_type = None, list_name = None):
         try:
-            if achievement_type == None:
+            if achievement_type is None:
                 return self.raw_data[ACHIEVEMENTS]
-            elif list_name == None:
+            elif list_name is None:
                 return self.raw_data[ACHIEVEMENTS][achievement_type]
             else:
                 return self.raw_data[ACHIEVEMENTS][achievement_type][list_name]
