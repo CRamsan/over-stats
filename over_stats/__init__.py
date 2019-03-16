@@ -204,18 +204,18 @@ class PlayerProfile:
         If we find more than one matching <select> an exception will be thrown.
         This method will then search for each <option> and it will return a dictionary that uses their text as the key.
         """
-        dropdownList = pageSection.find(f'select[data-group-id="{selectId}"]')
-        if len(dropdownList) == 0:
+        dropdown_list = pageSection.find(f'select[data-group-id="{selectId}"]')
+        if len(dropdown_list) == 0:
             return {}
-        if len(dropdownList) > 1:
+        if len(dropdown_list) > 1:
             raise over_stats.errors.UnexpectedBehaviour('Found multiple dropdowns found.')
-        optionList = dropdownList[0].find('option')
-        optionDict = {}
-        for option in optionList:
+        option_list = dropdown_list[0].find('option')
+        option_dict = {}
+        for option in option_list:
             text = option.text
             value = option.attrs['value']
-            optionDict[text] = value
-        return optionDict
+            option_dict[text] = value
+        return option_dict
 
     # Public APIs
 
