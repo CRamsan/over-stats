@@ -185,9 +185,9 @@ class PlayerProfile:
             return stat_value
         elif '%' in stat_value:
             if use_decimal:
-                return Decimal(str(float(stat_value.replace("%", ""))/(100.0)))
+                return Decimal(str(float(stat_value.replace("%", "")) / 100.0))
             else:
-                return float(stat_value.replace("%", ""))/(100.0)
+                return float(stat_value.replace("%", "")) / 100.0
         elif ' ' in stat_value:
             return stat_value.split(" ")
         else:
