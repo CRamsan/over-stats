@@ -198,13 +198,13 @@ class PlayerProfile:
                 return int(stat_value)
 
     @staticmethod
-    def getDictFromDropdown(selectId, pageSection):
+    def getDictFromDropdown(select_id, page_section):
         """
-        Search for a <select> that matches the selectId. If no pageSection is provided we are going to search the whole page.
+        Search for a <select> that matches the select_id. If no page_section is provided we are going to search the whole page.
         If we find more than one matching <select> an exception will be thrown.
         This method will then search for each <option> and it will return a dictionary that uses their text as the key.
         """
-        dropdown_list = pageSection.find(f'select[data-group-id="{selectId}"]')
+        dropdown_list = page_section.find(f'select[data-group-id="{select_id}"]')
         if len(dropdown_list) == 0:
             return {}
         if len(dropdown_list) > 1:
