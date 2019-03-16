@@ -240,7 +240,7 @@ class PlayerProfile:
     '''
     def load_data(self, force = False):
         if force:
-            seld._model = {}
+            self._model = {}
         self.load_data_if_needed()
 
     '''
