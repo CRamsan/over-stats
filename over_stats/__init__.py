@@ -234,7 +234,7 @@ class PlayerProfile:
         If _model is not populated or if force is tue, we will try to populate _model. Otherwise this method will be a noop.
         """
         if force:
-            seld._model = {}
+            self._model = {}
         self.load_data_if_needed()
 
     def comparison_types(self, mode):
