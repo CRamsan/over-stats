@@ -44,11 +44,11 @@ Print the entire profile's data in JSON format. You will notice that the output 
 
 This library does not hardcode the list of heroes, statistics or achievements. Instead you will need to retrieve those available values for the specific type of data you are retrieving. Even though this approach makes this library a bit more complicated to use, it also allows that new values such as new heroes will be handled transparently. 
 
-The list of game modes is available in:
+The list of game modes available for this player can be found with:
 
 .. code:: python
 
-        over_stats.MODES
+        player_data.modes()
 
 The fist section on a player's profile is the comparison section. Using one of the available modes you can retrieve the list of comparison types:
 
