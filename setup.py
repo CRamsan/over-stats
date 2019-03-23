@@ -4,7 +4,7 @@ with open('README.rst') as f:
     readme = f.read()
 
 setup(name='over_stats',
-      version='0.3.3',
+      version='0.4.0',
       description='Python API to retrieve Overwatch Statistics',
       long_description=readme,
       long_description_content_type='text/x-rst',
@@ -12,7 +12,7 @@ setup(name='over_stats',
       author='Cramsan',
       author_email='contact@cramsan.com',
       classifiers=[
-            'Development Status :: 3 - Alpha',
+            'Development Status :: 4 - Beta',
             'Environment :: Console',
             'Intended Audience :: Developers',
             'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
