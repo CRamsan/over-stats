@@ -1,5 +1,5 @@
 from decimal import *
-import urllib
+import urllib.parse
 
 import requests_html
 
@@ -11,9 +11,10 @@ PLAT_PSN = "psn"
 PLATFORMS = [PLAT_PC, PLAT_XBL, PLAT_PSN]
 MODE_QP = "quickplay"
 MODE_CP = "competitive"
-MODES = [MODE_QP, MODE_CP]
+MODE_LIST = [MODE_QP, MODE_CP]
 COMPARISON = 'comparisons'
 STATS = 'stats'
+MODES = 'modes'
 ACHIEVEMENTS = 'achievements'
 ACH_EARNED = 'earned'
 ACH_MISSING = 'missing'
@@ -60,12 +61,22 @@ class PlayerProfile:
 
         """
         if self._model is None:
-            self._model = {}
+            self._model = {
+                    MODES: {},
+                    ACHIEVEMENTS: {}
+                    }
             self._r = session.get(self.url)
             # We are assuming that OW will not have any other game modes other than competitive and quickplay. 
-            for mode in MODES:
+            for mode in MODE_LIST:
                 # now get the html content that belongs to the current game mode
-                html_mode = self.get_html_for_mode(mode)
+                html_mode = None
+                try:
+                    html_mode = self.get_html_for_mode(mode)
+                except over_stats.errors.PlayerNotFound:
+                    # If the player has not played in a mode, then the html element will be missing. 
+                    # We can safely skip it in this case.
+                    continue
+
                 mode_dict = {}
 
                 # now retrieve the dictionary for all the different comparisons available, they will be something
@@ -87,7 +98,8 @@ class PlayerProfile:
                     hero_stat_dict[heroe_name] = hero_stats
                 mode_dict[STATS] = hero_stat_dict
 
-                self._model[mode] = mode_dict
+                self._model[MODES][mode] = mode_dict
+
             achievements_dict = {}
             # Now extract the achievements
             achievements = self.get_dict_from_dropdown(ACHIEVEMENTS, self._r.html)
@@ -236,18 +248,24 @@ class PlayerProfile:
         if force:
             self._model = {}
         self.load_data_if_needed()
+    
+    def modes(self):
+        """
+        Get a list of available game modes
+        """
+        return list(self.raw_data[MODES].keys())
 
     def comparison_types(self, mode):
         """
         Get a list of comparison types available for this game mode
         """
-        return list(self.raw_data[mode][COMPARISON].keys())
+        return list(self.raw_data[MODES][mode][COMPARISON].keys())
 
     def comparison_heroes(self, mode, comparison_type):
         """
         Get a list of available heroes for this combination of comparison type and game mode
         """
-        return list(self.raw_data[mode][COMPARISON][comparison_type].keys())
+        return list(self.raw_data[MODES][mode][COMPARISON][comparison_type].keys())
 
     def comparisons(self, mode, comparison_type=None, comparison_hero=None):
         """
@@ -255,15 +273,15 @@ class PlayerProfile:
         Retrieve the comparison data avilable for the provided game mode.
         You can specify comparison type, and comparison hero to narrow down the return values.
         """
-        if mode not in MODES:
+        if mode not in MODE_LIST:
             raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
             if comparison_type is None and comparison_hero is None:
-                return self.raw_data[mode][COMPARISON]
+                return self.raw_data[MODES][mode][COMPARISON]
             elif comparison_type is not None and comparison_hero is None:
-                return self.raw_data[mode][COMPARISON][comparison_type]
+                return self.raw_data[MODES][mode][COMPARISON][comparison_type]
             elif comparison_type is not None and comparison_hero is not None:
-                return self.raw_data[mode][COMPARISON][comparison_type][comparison_hero]
+                return self.raw_data[MODES][mode][COMPARISON][comparison_type][comparison_hero]
             else:
                 raise over_stats.errors.InvalidArgument(f'Combination of comparison_type="{comparison_type}", comparison_hero="{comparison_hero}" is not valid')
         except KeyError:
@@ -273,19 +291,19 @@ class PlayerProfile:
         """
         Get a list of available heroes to get stats from for the provided game mode.
         """
-        return list(self.raw_data[mode][STATS].keys())
+        return list(self.raw_data[MODES][mode][STATS].keys())
 
     def stat_categories(self, mode, hero):
         """
         Get a list of available stat categories for the requested hero
         """
-        return list(self.raw_data[mode][STATS][hero].keys())
+        return list(self.raw_data[MODES][mode][STATS][hero].keys())
 
     def stat_names(self, mode, hero, category):
         """
         Get a list of available stat names for the requested game mode, hero name and stat category
         """
-        return list(self.raw_data[mode][STATS][hero][category].keys())
+        return list(self.raw_data[MODES][mode][STATS][hero][category].keys())
 
     def stats(self, mode, hero=None, category=None, stat_name=None):
         """
@@ -293,17 +311,17 @@ class PlayerProfile:
         Retrieve the statistics data available for the provided game mode.
         You can provide a hero, category and stat name to narrow down the return value.
         """
-        if mode not in MODES:
+        if mode not in MODE_LIST:
             raise over_stats.errors.InvalidArgument(f'mode="{mode}" is invalid')
         try:
             if hero is None and category is None and stat_name is None:
-                return self.raw_data[mode][STATS]
+                return self.raw_data[MODES][mode][STATS]
             elif hero is not None and category is None and stat_name is None:
-                return self.raw_data[mode][STATS][hero]
+                return self.raw_data[MODES][mode][STATS][hero]
             elif hero is not None and category is not None and stat_name is None:
-                return self.raw_data[mode][STATS][hero][category]
+                return self.raw_data[MODES][mode][STATS][hero][category]
             elif hero is not None and category is not None and stat_name is not None:
-                return self.raw_data[mode][STATS][hero][category][stat_name]
+                return self.raw_data[MODES][mode][STATS][hero][category][stat_name]
             else:
                 raise over_stats.errors.InvalidArgument(f'Combination of hero="{hero}", category="{category}" and stat_name="{stat_name}" is not valid')
         except KeyError:

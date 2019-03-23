@@ -20,7 +20,7 @@ player_data.load_data()
 # print (json.dumps(player_data.raw_data, indent=4))
 
 # You can also use the helper methods to access the data you want
-for mode in over_stats.MODES:
+for mode in player_data.modes():
     # mode will be 'quickplay' or 'competitive'
     print (f"Game Mode: {mode}")
     print ("Comparison Types Available: " + str(player_data.comparison_types(mode)))
@@ -47,7 +47,7 @@ for mode in over_stats.MODES:
                 print ("       - " + stat_name + ": " + str(player_data.stats(mode, hero, category, stat_name)))
 
 # Achievements do not depend on game mode and instead they use categories like 'General', 'Offence', 'Defense', etc
-print ("Achievemet Types Available: " + str(player_data.achievement_types()))
+print ("Achievement Types Available: " + str(player_data.achievement_types()))
 for achievement_type in player_data.achievement_types():
     print (f"Achievement Type: {achievement_type}")
     # Each achievement category contains two lists, one with acquired achievements and one for missing achievements.
